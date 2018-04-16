@@ -10,7 +10,7 @@ public class Dispositivo {
 	@Id
 	private String id;
 	private String uuid;
-	private boolean flagAtivo;
+	private boolean flagAtivo = true;
 	@DBRef
 	private Tenant tenant;
 	@DBRef

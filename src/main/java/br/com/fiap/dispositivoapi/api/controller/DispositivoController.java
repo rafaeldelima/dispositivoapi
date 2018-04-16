@@ -1,10 +1,12 @@
 package br.com.fiap.dispositivoapi.api.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +46,12 @@ public class DispositivoController {
 	@PostMapping
 	ResponseEntity<Response<Dispositivo>> inserir(@RequestBody Dispositivo dispositivo) {
 		Response<Dispositivo> resposta = new Response<Dispositivo>();
+		
+		this.validarDadosDispositivo(dispositivo, resposta);			
+		if(!resposta.getErrors().isEmpty()) {
+			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 		Dispositivo dispositivoInserido = dispositivoService.criarOuAtualizarDispositivo(dispositivo);
 		
 		if (dispositivoInserido != null) {
@@ -55,6 +63,20 @@ public class DispositivoController {
 		}
 	}
 	
+	private void validarDadosDispositivo(Dispositivo dispositivo, Response<Dispositivo> resposta) {
+		
+		if(StringUtils.isEmpty(dispositivo.getUuid())) {
+			resposta.getErrors().add("Necessario informar o UUID do dispositivo");
+		}
+		if(dispositivo.getCliente() == null || StringUtils.isEmpty(dispositivo.getCliente().getId())) {
+			resposta.getErrors().add("Necessario informar o cliente do dispositivo");
+		}
+		if(dispositivo.getTenant() == null || StringUtils.isEmpty(dispositivo.getTenant().getId())) {
+			resposta.getErrors().add("Necessario informar o tenant do dispositivo");
+		}
+		
+	}
+
 	@PutMapping
 	ResponseEntity<Response<Dispositivo>> atualizar(@RequestBody Dispositivo dispositivo) {
 		Response<Dispositivo> resposta = new Response<Dispositivo>();

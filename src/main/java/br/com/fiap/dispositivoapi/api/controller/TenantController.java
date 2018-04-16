@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +45,12 @@ public class TenantController {
 	@PostMapping
 	ResponseEntity<Response<Tenant>> inserir(@RequestBody Tenant tenant) {
 		Response<Tenant> resposta = new Response<Tenant>();
+		
+		this.validarDadosTenant(tenant, resposta);			
+		if(!resposta.getErrors().isEmpty()) {
+			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 		List<Tenant> tenantBase = tenantService.buscarTenantPorNome(tenant.getNome());
 		if(tenantBase != null && !tenantBase.isEmpty()) {
 			resposta.getErrors().add("Ja existe um tenant com o mesmo nome");
@@ -62,6 +69,13 @@ public class TenantController {
 		}
 	}
 	
+	private void validarDadosTenant(Tenant tenant, Response<Tenant> resposta) {
+		
+		if(StringUtils.isEmpty(tenant.getNome())) {
+			resposta.getErrors().add("Necessario informar o nome para cadastrar um Tenant");
+		}
+	}
+
 	@PutMapping
 	ResponseEntity<Response<Tenant>> atualizar(@RequestBody Tenant tenant) {
 		Response<Tenant> resposta = new Response<Tenant>();

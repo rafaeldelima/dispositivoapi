@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +45,13 @@ public class ClienteController {
 	@PostMapping
 	ResponseEntity<Response<Cliente>> inserir(@RequestBody Cliente cliente) {
 		Response<Cliente> resposta = new Response<Cliente>();
+		
+		this.validarDadosCriarCliente(cliente, resposta);
+		
+		if(!resposta.getErrors().isEmpty()) {
+			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 		List<Cliente> clienteBase = clienteService.buscarPorNome(cliente.getNome());
 		if(clienteBase != null && !clienteBase.isEmpty()) {
 			resposta.getErrors().add("Ja existe um cliente com o mesmo nome");
@@ -62,10 +70,21 @@ public class ClienteController {
 		}
 	}
 	
+	private void validarDadosCriarCliente(Cliente cliente, Response<Cliente> resposta) {		
+		if(StringUtils.isEmpty(cliente.getNome())) {
+			resposta.getErrors().add("Necessario informar o nome do cliente");
+		}
+	}
+
 	@PutMapping
 	ResponseEntity<Response<Cliente>> atualizar(@RequestBody Cliente cliente) {
 		Response<Cliente> resposta = new Response<Cliente>();
 		if(cliente.getId() != null) {
+			this.validarDadosCriarCliente(cliente, resposta);			
+			if(!resposta.getErrors().isEmpty()) {
+				return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
 			Cliente clienteBase = clienteService.buscarPorId(cliente.getId());
 			if(clienteBase == null) {
 				resposta.getErrors().add("Nao foi encontrado um cliente com este id");

@@ -14,7 +14,7 @@ public class Usuario {
 	private String email;
 	@DBRef
 	private Tenant tenant;
-	private boolean flagAtivo;
+	private boolean flagAtivo = true;
 	
 	public String getId() {
 		return id;
