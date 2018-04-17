@@ -84,6 +84,11 @@ public class UsuarioController {
 			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
+		if(usuarioService.buscarUsuarioPorEmail(usuario.getEmail()) != null) {
+			resposta.getErrors().add("Ja existe um usuario com este email");
+			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 		Usuario usuarioInserido = usuarioService.criarOuAtualizarUsuario(usuario);
 		
 		if (usuarioInserido != null) {
@@ -97,6 +102,10 @@ public class UsuarioController {
 	}
 	
 	private void validarDadosCriarUsuario(Usuario usuario, Response<Usuario> resposta) {
+		if(!StringUtils.isEmpty(usuario.getId())) {
+			resposta.getErrors().add("Você nao deve informar o ID do usuario, ele é gerado pelo sistema");
+		}
+		
 		if(StringUtils.isEmpty(usuario.getNome())) {
 			resposta.getErrors().add("Necessario informar um nome para o usuario");
 		}
@@ -129,21 +138,6 @@ public class UsuarioController {
 		}else{
 			resposta.getErrors().add("Ocorreu um erro ao tentar atualizar o Usuario");
 			return new ResponseEntity<>(resposta, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
-	@GetMapping("/email/{email}")
-	ResponseEntity<Response<Usuario>> buscarUsuario(@PathVariable("email") String email) {
-		Response<Usuario> resposta = new Response<Usuario>();
-		Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
-		
-		if (usuario != null) {
-			usuario.setSenha(null);
-			resposta.setData(usuario);
-			return new ResponseEntity<>(resposta, HttpStatus.OK);
-		} else {
-			resposta.getErrors().add("Nenhum registro encontrado");
-			return new ResponseEntity<>(resposta, HttpStatus.NOT_FOUND);
 		}
 	}
 	
