@@ -37,7 +37,7 @@ public class ClienteController {
 			resposta.setData(clientes);
 			return new ResponseEntity<>(resposta, HttpStatus.OK);
 		} else {
-			resposta.getErrors().add("Nenhum registro encontrado");
+			resposta.getErrors().add("Nenhum registro encontrado nesta consulta");
 			return new ResponseEntity<>(resposta, HttpStatus.NOT_FOUND);
 		}
 	}
